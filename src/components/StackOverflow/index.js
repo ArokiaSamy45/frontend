@@ -1,21 +1,35 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
-import "./css/index.css";
 import Main from "./Main";
 import axios from "axios";
 
 function Index() {
   const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function getQuestion() {
-      await axios.get("/api/question").then((res) => {
-        setQuestions(res.data.reverse());
-        // console.log(res.data)
-      });
+    async function getQuestions() {
+      try {
+        const response = await axios.get("/api/question");
+        setQuestions(response.data.reverse());
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
     }
-    getQuestion();
+    getQuestions();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div className="stack-index">
       <div className="stack-index-content">
